@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Quiz Challenge</title>
+    <style>
+        /* --- CSS Reset & Fonts --- */
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Kanit', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* --- Container Main Card --- */
+        .quiz-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 650px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            text-align: center;
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        /* --- Typography & Elements --- */
+        h1 {
+            font-size: 2.5rem;
+            color: #e94560;
+            text-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        p {
+            font-size: 1rem;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        .progress {
+            font-size: 0.9rem;
+            color: #e94560;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* --- Image Wrapper (16:9 Aspect Ratio) --- */
+        .image-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Ratio */
+            background-color: #1a1a2e;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 2px solid rgba(233, 69, 96, 0.3);
+        }
+
+        .image-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* --- Buttons & Choices --- */
+        .btn-btn {
+            display: block;
+            width: 100%;
+            padding: 14px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        .btn-btn:hover {
+            background: #e94560;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4);
+        }
+
+        /* Action Buttons (Start, Next, Restart) */
+        .action-btn {
+            display: inline-block;
+            padding: 14px 40px;
+            background: #e94560;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.3);
+            margin-top: 15px;
+        }
+
+        .action-btn:hover {
+            background: #ff5e7e;
+            transform: scale(1.05);
+        }
+
+        /* --- Feedback Section (หน้าเฉลย) --- */
+        .feedback-box {
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .correct-box {
+            background: rgba(46, 204, 113, 0.2);
+            border: 2px solid #2ecc71;
+            color: #2ecc71;
+        }
+
+        .wrong-box {
+            background: rgba(231, 76, 60, 0.2);
+            border: 2px solid #e74c3c;
+            color: #e74c3c;
+        }
+
+        .explanation {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: left;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            border-left: 4px solid #e94560;
+        }
+
+        /* --- Result Page --- */
+        .score-text {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #00f2fe;
+            margin: 20px 0;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+        }
+
+        .summary-details {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            color: #aaa;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 480px) {
+            .quiz-container {
+                padding: 20px 15px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            h2 {
+                font-size: 1.1rem;
+            }
+            .btn-btn {
+                font-size: 0.9rem;
+                padding: 12px 15px;
+            }
+            .action-btn {
+                width: 100%;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div id="start-screen">
+            <h1>Anime Quiz Challenge</h1>
+            <p>ยินดีต้อนรับเข้าสู่สุดยอดแบบทดสอบแฟนพันธุ์แท้อนิเมะ! คุณพร้อมที่จะทดสอบความรู้ของคุณหรือยัง? มีทั้งหมด 10 ข้อนะ!</p>
+            <div class="image-wrapper">
+                <img src="https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1000&auto=format&fit=crop" alt="Anime Welcome">
+            </div>
+            <button class="action-btn" onclick="startQuiz()">เริ่มเกมเลย!</button>
+        </div>
+
+        <div id="question-screen" class="hide">
+            <div class="progress">ข้อที่ <span id="current-question-num">1</span> / 10</div>
+            <h2 id="question-text">คำถามจะแสดงที่นี่</h2>
+            
+            <div class="image-wrapper">
+                <img id="question-image" src="" alt="Question Image">
+            </div>
+
+            <div id="choices-container">
+                </div>
+        </div>
+
+        <div id="feedback-screen" class="hide">
+            <div id="feedback-status" class="feedback-box">ถูกต้อง / ผิด</div>
+            
+            <div class="image-wrapper">
+                <img id="feedback-image" src="" alt="Feedback Image">
+            </div>
+
+            <div class="explanation">
+                <strong>คำอธิบาย:</strong> <span id="explanation-text">คำอธิบายข้อนั้นๆ...</span>
+            </div>
+
+            <button class="action-btn" id="next-btn" onclick="nextQuestion()">ถัดไป</button>
+        </div>
+
+        <div id="result-screen" class="hide">
+            <h1>สรุปคะแนน</h1>
+            <div class="score-text"><span id="final-score">0</span> / 10</div>
+            <div class="summary-details">
+                <p>ตอบถูก: <span id="correct-count" style="color: #2ecc71; font-weight: bold;">0</span> ข้อ</p>
+                <p>ตอบผิด: <span id="wrong-count" style="color: #e74c3c; font-weight: bold;">0</span> ข้อ</p>
+            </div>
+            <button class="action-btn" onclick="restartQuiz()">เล่นอีกครั้ง</button>
+        </div>
+    </div>
+
+    <script>
+        // --- ส่วนที่กำหนดข้อถูก/ข้อผิด และคำถาม (10 ข้อ) ---
+        // 'correctAnswer' คือเลข Index ของคำตอบที่ถูก (เริ่มนับจาก 0 ตัวแรกคือ 0, ตัวสองคือ 1...)
+        const questions = [
+            {
+                question: "1. ตัวละคร 'มังกี้ ดี ลูฟี่' จากเรื่อง One Piece กินผลปีศาจชนิดใดเข้าไป?",
+                image: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=1000&auto=format&fit=crop",
+                choices: ["ผลโกมุ โกมุ (ยาง)", "ผลメラメラ (ไฟ)", "ผลกุระ กุระ (แผ่นดินไหว)", "ผลฮิโตะ ฮิโตะ โมเดลนิกะ"],
+                correctAnswer: 0,
+                explanation: "ลูฟี่กินผลโกมุ โกมุ (ผลยาง) เข้าไปทำให้ร่างกายมีคุณสมบัติยืดหยุ่นเหมือนยาง (ซึ่งภายหลังเปิดเผยชื่อจริงว่าผลฮิโตะ ฮิโตะ โมเดลนิกะ แต่ในตอนแรกเริ่มคือผลยาง)"
+            },
+            {
+                question: "2. ดาบพิฆาตอสูร (Demon Slayer) ตัวละคร 'ทันจิโร่' มีต่างหูลายอะไร?",
+                image: "https://images.unsplash.com/photo-1627556587422-b2585f6e80b2?q=80&w=1000&auto=format&fit=crop",
+                choices: ["ลายเสือ", "ลายไพ่ฮานาฟุดะ (พระอาทิตย์)", "ลายหยดน้ำ", "ลายสายฟ้า"],
+                correctAnswer: 1,
+                explanation: "ทันจิโร่สวมต่างหูลายไพ่ฮานาฟุดะ ซึ่งเป็นมรดกตกทอดมาจากผู้ใช้ปราณตะวันในอดีต"
+            },
+            {
+                question: "3. ในอนิเมะ Naruto 'เนตรวงแหวน' เป็นขีดจำกัดสายเลือดของตระกูลใด?",
+                image: "https://images.unsplash.com/photo-1618336753974-aae8e04506aa?q=80&w=1000&auto=format&fit=crop",
+                choices: ["ตระกูลฮิอูกะ", "ตระกูลนารา", "ตระกูลอุจิวะ", "ตระกูลอุซึมากิ"],
+                correctAnswer: 2,
+                explanation: "เนตรวงแหวน (Sharingan) เป็นขีดจำกัดสายเลือดเฉพาะของสมาชิกตระกูลอุจิวะ"
+            },
+            {
+                question: "4. อนิเมะเรื่อง 'Attack on Titan' กำแพงชั้นนอกสุดที่ปกป้องมนุษยชาติมีชื่อว่าอะไร?",
+                image: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=1000&auto=format&fit=crop",
+                choices: ["Wall Maria (วอลล์ มาเรีย)", "Wall Rose (วอลล์ โรส)", "Wall Sina (วอลล์ ซีน่า)", "Wall Sina (วอลล์ ไททัน)"],
+                correctAnswer: 0,
+                explanation: "กำแพงชั้นนอกสุดคือ วอลล์ มาเรีย, ชั้นกลางคือ วอลล์ โรส และชั้นในสุดคือ วอลล์ ซีน่า"
+            },
+            {
+                question: "5. 'โกโจ ซาโตรุ' จาก Jujutsu Kaisen มีดวงตาสีอะไร?",
+                image: "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1000&auto=format&fit=crop",
+                choices: ["สีแดงเพลิง", "สีฟ้าครามประกาย (ริคุกัน)", "สีเขียวมรกต", "สีม่วงเข้ม"],
+                correctAnswer: 1,
+                explanation: "ดวงตาของโกโจมีสีฟ้าครามสดใส เป็นสัญลักษณ์ของ 'ริคุกัน' (ดวงตาริ้วสวรรค์)"
+            },
+            {
+                question: "6. ในเรื่อง Hunter x Hunter 'กอน ฟรีคส์' ใช้เน็นสายอะไรเป็นหลัก?",
+                image: "https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1000&auto=format&fit=crop",
+                choices: ["สายแปรสภาพ", "สายควบคุม", "สายเสริมพลัง", "สายพิเศษ"],
+                correctAnswer: 2,
+                explanation: "กอนอยู่สายเสริมพลัง (Enhancement) ซึ่งเหมาะกับท่าไม้ตายหมัดเป่ายิ้งฉุบ (จางจางเค่น) ของเขา"
+            },
+            {
+                question: "7. Death Note สมุดโน้ตกระชากวิญญาณ เป็นของยมทูตที่ชื่อว่าอะไร?",
+                image: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?q=80&w=1000&auto=format&fit=crop",
+                choices: ["ลุค (Ryuk)", "เรม (Rem)", "ลอว์ไลท์ (L)", "เนียร์ (Near)"],
+                correctAnswer: 0,
+                explanation: "สมุดเล่มที่ไลท์เก็บได้เดิมทีเป็นของยมทูตที่ชื่อว่า ลุค (Ryuk) ผู้ที่ชอบกินแอปเปิ้ลโลกมนุษย์"
+            },
+            {
+                question: "8. อนิเมะเรื่อง 'My Hero Academia' อัตลักษณ์ดั้งเดิมของ มิโดริยะ อิซุคุ (เดกุ) คืออะไร?",
+                image: "https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=1000&auto=format&fit=crop",
+                choices: ["ระเบิด", "พ่นไฟ", "ลบอัตลักษณ์", "ไม่มีอัตลักษณ์ (ไร้อัตลักษณ์)"],
+                correctAnswer: 3,
+                explanation: "เดกุเกิดมาในฐานะคน 'ไร้อัตลักษณ์' ก่อนที่จะได้รับสืบทอดพลัง One For All จากออลไมท์"
+            },
+            {
+                question: "9. ในเรื่อง Bleach เทพมรณะ ดาบฟันวิญญาณของ 'คุโรซากิ อิจิโกะ' มีชื่อว่าอะไร?",
+                image: "https://images.unsplash.com/photo-1617396900799-f4ec2b43c7ae?q=80&w=1000&auto=format&fit=crop",
+                choices: ["ซันเงสึ (ผ่าจันทรา)", "เซนบงซากุระ", "เฮียวรินมารุ", "ซาบิมารุ"],
+                correctAnswer: 0,
+                explanation: "ดาบฟันวิญญาณของอิจิโกะมีชื่อว่า ซันเงสึ (Zangetsu)"
+            },
+            {
+                question: "10. แมวหุ่นยนต์สีฟ้า 'โดราเอมอน' กลัวสัตว์ชนิดใดมากที่สุด?",
+                image: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1000&auto=format&fit=crop",
+                choices: ["แมว", "สุนัข", "แมลงสาบ", "หนู"],
+                correctAnswer: 3,
+                explanation: "โดราเอมอนเกลียดและกลัวหนูที่สุด เพราะในอดีตเคยโดนหุ่นยนต์หนูแทะหูจนแหว่งไปนั่นเอง"
+            }
+        ];
+
+        // --- Core Variables ---
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        // --- DOM Elements ---
+        const startScreen = document.getElementById('start-screen');
+        const questionScreen = document.getElementById('question-screen');
+        const feedbackScreen = document.getElementById('feedback-screen');
+        const resultScreen = document.getElementById('result-screen');
+
+        const questionNumText = document.getElementById('current-question-num');
+        const questionText = document.getElementById('question-text');
+        const questionImage = document.getElementById('question-image');
+        const choicesContainer = document.getElementById('choices-container');
+
+        const feedbackStatus = document.getElementById('feedback-status');
+        const feedbackImage = document.getElementById('feedback-image');
+        const explanationText = document.getElementById('explanation-text');
+        const nextBtn = document.getElementById('next-btn');
+
+        const finalScoreText = document.getElementById('final-score');
+        const correctCountText = document.getElementById('correct-count');
+        const wrongCountText = document.getElementById('wrong-count');
+
+        // --- Functions ---
+
+        // 1. เริ่มเกม
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            startScreen.classList.add('hide');
+            resultScreen.classList.add('hide');
+            feedbackScreen.classList.add('hide');
+            questionScreen.classList.remove('hide');
+            showQuestion();
+        }
+
+        // 2. แสดงคำถาม
+        function showQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            
+            // อัปเดตข้อความและเลขข้อ
+            questionNumText.innerText = currentQuestionIndex + 1;
+            questionText.innerText = currentQuestion.question;
+            questionImage.src = currentQuestion.image;
+
+            // ล้างปุ่มตัวเลือกเก่า
+            choicesContainer.innerHTML = '';
+
+            // สร้างปุ่มตัวเลือกใหม่ 4 ปุ่ม
+            currentQuestion.choices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.innerText = choice;
+                button.classList.add('btn-btn');
+                button.addEventListener('click', () => selectAnswer(index));
+                choicesContainer.appendChild(button);
+            });
+        }
+
+        // 3. ตรวจคำตอบและไปหน้าเฉลย
+        function selectAnswer(selectedIndex) {
+            const currentQuestion = questions[currentQuestionIndex];
+            const isCorrect = selectedIndex === currentQuestion.correctAnswer;
+
+            // ตรวจว่าตอบถูกไหม
+            if (isCorrect) {
+                score++;
+                feedbackStatus.innerText = "⭕ ถูกต้องที่สุด!";
+                feedbackStatus.className = "feedback-box correct-box";
+            } else {
+                feedbackStatus.innerText = `❌ ผิดซะแล้ว! (คำตอบที่ถูกคือ: ${currentQuestion.choices[currentQuestion.correctAnswer]})`;
+                feedbackStatus.className = "feedback-box wrong-box";
+            }
+
+            // ตั้งค่าหน้าเฉลย
+            feedbackImage.src = currentQuestion.image;
+            explanationText.innerText = currentQuestion.explanation;
+
+            // เปลี่ยนหน้าคำถามเป็นหน้าเฉลย
+            questionScreen.classList.add('hide');
+            feedbackScreen.classList.remove('hide');
+
+            // เปลี่ยนข้อความปุ่มถ้าเป็นข้อสุดท้าย
+            if (currentQuestionIndex === questions.length - 1) {
+                nextBtn.innerText = "ดูสรุปคะแนน";
+            } else {
+                nextBtn.innerText = "คำถามถัดไป";
+            }
+        }
+
+        // 4. ไปข้อถัดไป หรือ ไปหน้าสรุปผล
+        function nextQuestion() {
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                // มีข้อถัดไป
+                feedbackScreen.classList.add('hide');
+                questionScreen.classList.remove('hide');
+                showQuestion();
+            } else {
+                // จบ 10 ข้อแล้ว แสดงหน้าสรุปคะแนน
+                showResult();
+            }
+        }
+
+        // 5. หน้าสรุปคะแนน
+        function showResult() {
+            feedbackScreen.classList.add('hide');
+            resultScreen.classList.remove('hide');
+
+            finalScoreText.innerText = score;
+            correctCountText.innerText = score;
+            wrongCountText.innerText = questions.length - score;
+        }
+
+        // 6. เล่นใหม่อีกครั้ง
+        function restartQuiz() {
+            startQuiz();
+        }
+    </script>
+</body>
+</html>
